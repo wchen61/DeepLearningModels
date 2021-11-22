@@ -41,6 +41,10 @@ class AlexNet(nn.Module):
 if __name__ == '__main__':
     m = AlexNet()
     print(m)
+    #from torchvision.models import alexnet
+    #t_m = alexnet()
+    #print(t_m)
+
     x = torch.randn(1, 3, 224, 224)
     y = m(x)
     print(y.shape)

@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 
 from resnet import Resnet50
 from alexnet import AlexNet
+from vgg import VGG16
 from data import data_train_loader, data_test_loader
 
 parser = ArgumentParser()
@@ -19,6 +20,8 @@ def get_model(model_str):
         model = Resnet50()
     elif model_str == 'AlexNet':
         model = AlexNet()
+    elif model_str == 'VGG16':
+        model = VGG16()
     return model
 
 model = get_model(args.model)
