@@ -57,5 +57,5 @@ save_info['iter_num'] = epoches
 save_info['optimizer'] = optimizer.state_dict()
 save_info['model'] = model.state_dict()
 
-torch.save(save_info, 'model.pth')
+torch.save(save_info, 'model_' + args.model + '.pth')
 
