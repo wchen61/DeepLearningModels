@@ -1,3 +1,4 @@
+.DS_Store
 *.i
 *.ii
 *.gpu
@@ -5,4 +6,5 @@
 *.cubin
 *.fatbin
 *.pyc
+data
 data/

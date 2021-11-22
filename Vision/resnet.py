@@ -168,23 +168,23 @@ def _resnet(arch, block, layers, pretrained, progress, **kwargs):
     #    model.load_state_dict()
     return model
 
-def resnet18(pretrained=False, progress=True, **kwargs):
+def Resnet18(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress, **kwargs)
 
-def resnet34(pretrained=False, progress=True, **kwargs):
+def Resnet34(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet34', BasicBlock, [3, 4, 6, 3], pretrained, progress, **kwargs)
 
-def resnet50(pretrained=False, progress=True, **kwargs):
+def Resnet50(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet50', Bottleneck, [3, 4, 6, 3], pretrained, progress, **kwargs)
 
-def resnet101(pretrained=False, progress=True, **kwargs):
+def Resnet101(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet101', Bottleneck, [3, 4, 23, 3], pretrained, progress, **kwargs)
 
-def resnet152(pretrained=False, progress=True, **kwargs):
+def Resnet152(pretrained=False, progress=True, **kwargs):
     return _resnet('resnet152', Bottleneck, [3, 8, 36, 3], pretrained, progress, **kwargs)
 
 if __name__ == '__main__':
-    m = resnet50()
+    m = Resnet50()
     print(m)
 
     x = torch.randn(3, 3, 512, 512)

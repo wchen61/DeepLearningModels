@@ -1,17 +1,34 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from argparse import ArgumentParser
 
-from model import resnet50
+from resnet import Resnet50
+from alexnet import AlexNet
 from data import data_train_loader, data_test_loader
 
-model = resnet50()
-model.train()
-lr = 0.01
+parser = ArgumentParser()
+parser.add_argument('--model', default='Resnet50', help='Network')
+parser.add_argument('--lr', type=int, default=0.01, help='Learning Rate')
+parser.add_argument('--epoches', type=int, default=20, help='Epoches')
+parser.add_argument('--batch_size', type=int, default=32, help='Batch Size')
+args = parser.parse_args()
+
+def get_model(model_str):
+    if model_str == 'Resnet50':
+        model = Resnet50()
+    elif model_str == 'AlexNet':
+        model = AlexNet()
+    return model
+
+model = get_model(args.model)
+    
+lr = args.lr
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4)
 
-epoches = 20
+model.train()
+epoches = args.epoches
 for epoch in range(epoches):
     train_loss = 0
     total = 0
