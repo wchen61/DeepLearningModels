@@ -32,6 +32,10 @@ optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4
 
 model.train()
 epoches = args.epoches
+batch_size = args.batch_size
+
+print(model)
+print('Start training datasets:{}, epoches:{}, batch_size:{}, lr:{}'.format(len(data_train_loader), epoches, batch_size, lr))
 for epoch in range(epoches):
     train_loss = 0
     total = 0
