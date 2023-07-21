@@ -31,3 +31,38 @@ def box_nms(bboxes, scores, threshold=0.5):
             break
         order = order[ids+1]
     return torch.tensor(keep, dtype=torch.long)
+
+
+def train(train_loop_func, logger, args):
+    dboxes = dboxes300_coco()
+    encoder = Encoder(dboxes)
+    cocoGt = get_coco_ground_truth(args)
+
+    train_dataset = get_train_dataset(args)
+    train_loader = get_train_dataloader(train_dataset, args)
+
+    val_dataset = get_val_dataset(args)
+    val_loader = get_val_dataloader(val_dataset, args)
+
+    ssd300 = SSD300(backbone=ResNet(args.backbone, args.backbone_path))
+    args.learning_rate = args.learning_rate * args.N_gpu * (args.batch_size / 32)
+    start_epoch = 0
+    iteration = 0
+    loss_func = Loss(dboxes)
+
+    if use_cuda:
+        ssd300.cuda()
+        loss_func.cuda()
+    
+    optimizer = torch.optim.SGD(tencent_trick(ssd300), lr=args.learning_rate,
+                                momentum=args.momentum, weight_decay=args.weight_decay)
+    scheduler = MultiStepLR(optimizer=optimizer, milestones=args.multistep, gamma=0.1)
+
+    inv_map = {v:k for k, v in val_dataset.lable_map.items()}
+    
+    total_time = 0
+
+    if args.mode == 'evaluation':
+        acc = evaluate(ssd300, val_dataloader, cocoGT, encoder, inv_map, args)
+        print('Model precision {} mAP'.format(acc))
+        return
