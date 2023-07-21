@@ -8,3 +8,4 @@
 *.pyc
 data
 data/
+LanguageModel/Bert/data
