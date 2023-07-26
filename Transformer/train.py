@@ -68,7 +68,7 @@ def run_epoch(
             train_state.step += 1
             train_state.samples += batch.src.shape[0]
             train_state.tokens += batch.ntokens
-            if i %accum_iter == 0:
+            if i % accum_iter == 0:
                 optimizer.step()
                 optimizer.zero_grad(set_to_none=True)
                 n_accum += 1

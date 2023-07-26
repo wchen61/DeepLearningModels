@@ -3,7 +3,6 @@ import torch.distributed as dist
 import torch.multiprocessing as mp
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.optim.lr_scheduler import LambdaLR
-import GPUtil
 import os
 from model import make_model
 from train import LabelSmoothing, TrainState, SimpleLossCompute, Batch, rate, run_epoch, DummyOptimizer, DummyScheduler
@@ -19,13 +18,13 @@ def train_worker(
     config,
     is_distributed=False,
 ):
-    print(f"Train worker process using GPU: {gpu} for training", flush=True)
-    torch.cuda.set_device(gpu)
+    device = torch.device(config["device"])
+    print(f"Train worker process using GPU: {device} for training", flush=True)
 
     pad_idx = vocab_tgt["<blank>"]
     d_model = 512
     model = make_model(len(vocab_src), len(vocab_tgt), N=6)
-    model.cuda(gpu)
+    model.to(device)
     module = model
     is_main_process = True
     if is_distributed:
@@ -38,10 +37,10 @@ def train_worker(
     criterion = LabelSmoothing(
         size=len(vocab_tgt), padding_idx=pad_idx, smoothing=0.1
     )
-    criterion.cuda(gpu)
+    criterion.to(device)
     
     train_dataloader, valid_dataloader = create_dataloaders(
-        gpu,
+        device,
         vocab_src,
         vocab_tgt,
         spacy_de,
@@ -79,13 +78,10 @@ def train_worker(
             train_state=train_state,
         )
         
-        GPUtil.showUilization()
         if is_main_process:
             file_path = "%s%.2d.pt" % (config["file_prefix"], epoch)
             torch.save(module.state_dict(), file_path)
-            
-        torch.cuda.empty_cache()
-        
+
         print(f"[GPU{gpu}] Epoch {epoch} Validation ===", flush=True)
         model.eval()
         sloss = run_epoch(
@@ -94,14 +90,13 @@ def train_worker(
             SimpleLossCompute(module.generator, criterion),
             DummyOptimizer(),
             DummyScheduler(),
-            model="eval"
+            mode="eval"
         )
         print(sloss)
-        torch.cuda.empty_cache()
-    
+
     if is_main_process:
         file_path = "%sfinal.pt" % config["file_prefix"]
-        torch.save(module.sate_dict(), file_path)
+        torch.save(module.state_dict(), file_path)
 
 def train_distributed_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config):
     ngpus = torch.cuda.device_count()
@@ -135,9 +130,9 @@ if __name__ == "__main__":
         "max_padding": 72,
         "warmup": 3000,
         "file_prefix": "multi30k_model_",
+        "device": "cpu"
     }
     
     spacy_de, spacy_en = load_tokenizers()
     vocab_src, vocab_tgt = load_vocab(spacy_de, spacy_en)
-    
     train_model(vocab_src, vocab_tgt, spacy_de, spacy_en, config)
