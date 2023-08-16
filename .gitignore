@@ -9,5 +9,4 @@
 *.pt
 __pycache__
 data
-data/
-LanguageModel/Bert/data
+!GPT/data
